@@ -2,6 +2,8 @@
 #include <node.h>
 #include <gtk/gtk.h>
 #include <webkit/webkitwebview.h>
+#include <webkit/webkitwebframe.h>
+#include <webkit/webkitnetworkrequest.h>
 
 using namespace node;
 using namespace v8;
@@ -17,7 +19,7 @@ void destroy (void)
 
 void title_change (void)
 {
-	gtk_window_set_title(GTK_WINDOW (window), webkit_web_view_get_title(WEBKIT_WEB_VIEW (web_view)));
+	gtk_window_set_title(GTK_WINDOW (window),webkit_web_frame_get_title(WEBKIT_WEB_FRAME(webkit_web_view_get_main_frame(WEBKIT_WEB_VIEW(web_view)))));
 }
 
 static Handle<Value> create_window(const Arguments& args)
@@ -53,7 +55,8 @@ static Handle<Value> create_window(const Arguments& args)
   gtk_container_add (GTK_CONTAINER (scrolled_window), web_view);
   gtk_container_add (GTK_CONTAINER (window), scrolled_window);
   
-  webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), *url);
+  webkit_network_request_set_uri(WEBKIT_NETWORK_REQUEST(request),*url);
+  webkit_web_frame_load_request(WEBKIT_WEB_FRAME(webkit_web_view_get_main_frame(WEBKIT_WEB_VIEW(web_view))),request);
 
   gtk_window_set_default_size (GTK_WINDOW (window), width, height);
   gtk_widget_show_all (window);
